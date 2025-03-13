@@ -7,14 +7,14 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# กำหนดโฟลเดอร์สำหรับอัปโหลดไฟล์
-UPLOAD_FOLDER = 'uploads'
+# ✅ ใช้ /tmp/uploads/ แทน uploads/ (Render เขียนไฟล์ได้ที่นี่)
+UPLOAD_FOLDER = '/tmp/uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# สร้าง Path ให้ถูกต้อง เพื่อให้ Render หาไฟล์ `.pkl` เจอ
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # หาตำแหน่งโฟลเดอร์ที่ `app.py` อยู่
-MODEL_PATH = os.path.join(BASE_DIR, "models", "best_model_no_smote.pkl")  # รวม Path ไปยังไฟล์โมเดล
+# ✅ ตรวจสอบและสร้างโฟลเดอร์หากไม่มี
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # ตรวจสอบนามสกุลไฟล์
 def allowed_file(filename):
@@ -23,12 +23,11 @@ def allowed_file(filename):
 # โหลดโมเดล
 def load_model(model_path):
     if not model_path.endswith('.pkl'):
-        raise ValueError("Only .pkl model format is supported")
-    with open(model_path, "rb") as file:
-        return pickle.load(file)
+        raise ValueError("Only .sav model format is supported")
+    return pickle.load(open(model_path, 'rb'))
 
-# โหลดโมเดลจาก Path ที่แก้ไขให้ถูกต้อง
-model = load_model(MODEL_PATH)
+# ✅ โหลดโมเดลจากตำแหน่งเดิม (ไม่เปลี่ยนแปลง)
+model = load_model("models/best_model_no_smote.pkl")
 
 @app.route('/', methods=['GET'])
 def home():
@@ -47,45 +46,58 @@ def upload_file():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # ✅ เช็คและสร้างโฟลเดอร์อีกครั้งกันพลาด
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+
+        # ✅ บันทึกไฟล์
         file.save(file_path)
-        print("File uploaded successfully:", file_path)
+
+        # ✅ Debug Log (ให้แน่ใจว่าเซฟได้)
+        print(f"File saved at: {file_path}")
 
         try:
             df = pd.read_csv(file_path)
             X = df[['FunctionalAssessment', 'MMSE', 'ADL', 'MemoryComplaints', 'BehavioralProblems']]
-            print("Input values:", X.values)
-
             predictions = model.predict(X.values)
 
-            os.remove(file_path)  # ลบไฟล์หลังใช้งาน
+            # ✅ ลบไฟล์หลังใช้เสร็จ
+            os.remove(file_path)
 
-            return jsonify({'status': 'success', 'predictions': predictions.tolist()})
+            return jsonify({
+                'status': 'success',
+                'predictions': predictions.tolist()
+            })
 
         except Exception as e:
             return jsonify({'error': str(e)})
 
 @app.route('/manual', methods=['POST'])
 def manual_input():
-    try:
-        mmse = request.form.get('field1')
-        functional = request.form.get('field2')
-        memory = request.form.get('field3')
-        behavior = request.form.get('field4')
-        adl = request.form.get('field5')
+    print(99)
+    mmse = request.form.get('field1')
+    functional = request.form.get('field2')
+    memory = request.form.get('field3')
+    behavior = request.form.get('field4')
+    adl = request.form.get('field5')
 
-        if None in [mmse, functional, memory, behavior, adl]:
-            return jsonify({'error': 'Missing input values'})
+    print(mmse)
 
-        data = np.array([[functional, mmse, adl, memory, behavior]])
-        predictions = model.predict(data)
-        print("Raw predictions:", predictions)
+    if None in [mmse, functional, memory, behavior, adl]:
+        return jsonify({'error': 'Missing input values'})
 
-        return jsonify({'status': 'success', 'predictions': predictions.tolist()})
+    data = np.array([[functional, mmse, adl, memory, behavior]])
+    predictions = model.predict(data)
+    print("Raw predictions:", predictions)
 
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    return jsonify({
+        'status': 'success',
+        'predictions': predictions.tolist()
+    })
 
 if __name__ == '__main__':
+    # ✅ สร้างโฟลเดอร์อัปโหลดตอนรันเซิร์ฟเวอร์ (สำคัญ)
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
     app.run(debug=True)
