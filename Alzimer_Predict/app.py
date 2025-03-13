@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 # กำหนดโฟลเดอร์สำหรับอัปโหลดไฟล์
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -16,83 +16,91 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# โหลดโมเดล .pkl (แก้ path ให้รองรับทุก OS)
+# โหลดโมเดล .sav
 def load_model(model_path):
     if not model_path.endswith('.pkl'):
-        raise ValueError("Only .pkl model format is supported")  # แก้ error message
-    with open(model_path, 'rb') as file:
-        return pickle.load(file)
+        raise ValueError("Only .sav model format is supported")
+    return pickle.load(open(model_path, 'rb'))
 
-# โหลดโมเดล (ใช้ os.path.join() เพื่อให้รองรับทุกระบบ)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "best_model_no_smote.pkl")
-
-model = load_model(MODEL_PATH)
-
+# โหลดโมเดล (ปรับ path ตามตำแหน่งใหม่)
+model = load_model(r"models\best_model_no_smote.pkl")
 @app.route('/', methods=['GET'])
-def home():
+def home ():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
+    if request.method == 'POST':
 
-    file = request.files['file']
+        # ตรวจสอบว่ามีไฟล์ใน request หรือไม่
+        if 'file' not in request.files:
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+            return jsonify({'error': 'No file part'})
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'})
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            print(122)
+            # อ่านไฟล์ CSV
+            try:
+                df = pd.read_csv(file_path)
+                #sort
+                X =df[['FunctionalAssessment','MMSE','ADL','MemoryComplaints','BehavioralProblems']]
+                print(X.values)
+                # ทำนายผล (อาจต้องปรับ preprocessing ตามโมเดล)
+                predictions = model.predict(X.values)
+                
+                # print("Raw predictions:", predictions)
 
-        # อ่านไฟล์ CSV
-        try:
-            df = pd.read_csv(file_path)
+                # ลบไฟล์หลังใช้งาน
+                os.remove(file_path)
+                
+                # ส่งผลลัพธ์กลับ
+                return jsonify({
+                    'status': 'success',
+                    'predictions': predictions.tolist()
+                })
+                
+            except Exception as e:
+                return jsonify({'error': str(e)})
+    
 
-            # คัดเลือก feature
-            X = df[['FunctionalAssessment', 'MMSE', 'ADL', 'MemoryComplaints', 'BehavioralProblems']]
-
-            # ทำนายผล
-            predictions = model.predict(X.values)
-
-            # ลบไฟล์หลังใช้งาน
-            os.remove(file_path)
-
-            return jsonify({
-                'status': 'success',
-                'predictions': predictions.tolist()
-            })
-        except Exception as e:
-            return jsonify({'error': str(e)})
 
 @app.route('/manual', methods=['POST'])
 def manual_input():
+    print(99)
+    # รับค่าจาก FormData
     mmse = request.form.get('field1')
     functional = request.form.get('field2')
     memory = request.form.get('field3')
     behavior = request.form.get('field4')
     adl = request.form.get('field5')
-
+    print(mmse)
+        # ตรวจสอบว่าค่าทั้งหมดไม่เป็นค่าว่าง
     if None in [mmse, functional, memory, behavior, adl]:
-        return jsonify({'error': 'Missing input values'})
-
-    try:
-        data = np.array([[float(functional), float(mmse), float(adl), float(memory), float(behavior)]])
-        predictions = model.predict(data)
-
-        return jsonify({
+            return jsonify({'error': 'Missing input values'})
+        
+    data=np.array([[functional,mmse,adl, memory, behavior]])
+        # print(data)
+    predictions=0
+    predictions = model.predict(data)
+    print("Raw predictions:", predictions)
+        
+    return jsonify({
             'status': 'success',
             'predictions': predictions.tolist()
-        })
-    except ValueError:
-        return jsonify({'error': 'Invalid input type, please enter numeric values'})
+     })
+
+
 
 if __name__ == '__main__':
     # สร้างโฟลเดอร์ uploads ถ้ายังไม่มี
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    
-    app.run(debug=True)
+    app.run(debug=True) 
