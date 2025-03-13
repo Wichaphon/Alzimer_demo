@@ -25,7 +25,8 @@ def load_model(model_path):
 
 # โหลดโมเดล (ใช้ os.path.join() เพื่อให้รองรับทุกระบบ)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "Alzimer_Predict", "models", "best_model_no_smote.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "models", "best_model_no_smote.pkl")
+
 model = load_model(MODEL_PATH)
 
 @app.route('/', methods=['GET'])
