@@ -1,0 +1,499 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #52057B;
+    padding: 15px 50px;
+    color: white;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: bold;
+    position: relative;
+    color: #ffff;
+}
+
+.logo i {
+    position: relative;
+    padding-right: 10px;
+    font-size: 2rem;
+}
+
+.nav-links-wrapper {
+    /* เพิ่ม wrapper สำหรับ nav-links */
+    flex-grow: 1;
+    /* ให้ wrapper ขยายเพื่อเติมพื้นที่ตรงกลาง */
+    display: flex;
+    justify-content: center;
+    /* จัด nav-links ให้อยู่ตรงกลาง */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+.nav-links li {
+    display: inline;
+    margin-left: 40px;
+    gap: 15px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.button-group input[type="submit"],
+.button-group button {
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: none;
+}
+
+.button-group input[type="submit"] {
+    background: #003366;
+    color: white;
+}
+
+.button-group input[type="submit"]:hover {
+    background: #002244;
+}
+
+.button-group button {
+    background: #ffcc00;
+    color: #003366;
+}
+
+.button-group button:hover {
+    background: #e6b800;
+}
+
+.book-btn {
+    background: #ffcc00;
+    color: #003366;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.book-btn:hover {
+    background: #e6b800;
+}
+
+/* Hero Section */
+.hero {
+    background-image: url(static/background.jpeg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 100px;
+}
+
+.hero-text {
+    max-width: 25%;
+    margin-left: -400px;
+}
+
+.hero-text h1 {
+    font-size: 36px;
+    margin-bottom: 1px;
+    color: #003366;
+}
+
+.hero-text p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.hero-img img {
+    width: 50%;
+    /* Adjust the percentage to change the size */
+    max-width: 500px;
+    /* Optional: to limit the image size */
+    height: auto;
+    /* Maintain aspect ratio */
+    margin-left: 5px;
+    /* Center the image horizontally */
+    display: block;
+    /* Ensure the image is block-level for better centering */
+}
+
+@keyframes rotateAnimation {
+    0% {
+        transform: rotateX(0deg);
+    }
+
+    25% {
+        transform: translateY(10px);
+    }
+
+    50% {
+        transform: rotateX(0deg);
+    }
+
+    75% {
+        transform: translateY(10px);
+    }
+
+    100% {
+        transform: rotateX(0deg);
+    }
+}
+
+.hero-img {
+    animation: rotateAnimation 5s infinite ease-in-out;
+}
+
+
+/* Quote Form */
+/* Quote Form */
+.quote-form {
+    background: #f1f1f1;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 350px;
+    transition: transform 0.3s ease;
+    /* animation: rotationAnimation 5s infinite ease-in-out; */
+}
+
+.quote-form:hover {
+    transform: scale(1.02);
+}
+
+/* .quote-form {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.8);
+    transition: all 0.5s ease-in-out;
+}
+
+/* แสดงฟอร์มพร้อมแอนิเมชัน */
+.quote-form.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Memory Complaints Section */
+#memoryComplaints {
+    margin-bottom: 20;
+}
+
+#memoryComplaints label {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+#memoryComplaints button {
+    background-color: #ffcc00;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+#memoryComplaints button:active {
+    background-color: #003366;
+}
+
+/* Behavioral Problems Section */
+#behavioralProblems {
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+#behavioralProblems label {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+#behavioralProblems button {
+    background-color: #ffcc00;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 16px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+#behavioralProblems button:hover {
+    background-color: #003366;
+}
+
+/* ปุ่มแบบโหดๆ */
+.book-btn {
+    background: linear-gradient(45deg, #6a0dad, #9932cc);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.book-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(147, 112, 219, 0.8);
+}
+
+.quote-form h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #003366;
+    font-weight: bold;
+}
+
+/* File Input */
+input[type="file"] {
+    display: block;
+    margin: 20px auto;
+    padding: 10px;
+    background: #fff;
+    border: 2px solid #003366;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 14px;
+    color: #003366;
+    transition: border 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #ffcc00;
+}
+
+/* Input Fields for Manual Form */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #003366;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #003366;
+    background: #fff;
+    transition: border 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #ffcc00;
+    outline: none;
+}
+
+/* Submit Button */
+input[type="submit"] {
+    background: #003366;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+input[type="submit"]:hover {
+    background: #e6b800;
+}
+
+/* Toggle Buttons */
+.toggle-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.toggle-buttons button {
+    background: #003366;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toggle-buttons button:hover {
+    background: #e6b800;
+    color: white;
+    transform: scale(1);
+}
+
+input[type="submit"]:hover {
+    background: #002244;
+}
+
+/* Result Messages */
+#result {
+    margin-top: 15px;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+/* Footer Styles */
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #52057B;
+    justify-content: space-between;
+}
+
+.footer-section {
+    flex: 1;
+    padding-left: 20px;
+    justify-content: space-between;
+}
+
+.footer-section p {
+    color: #fff;
+    font-size: 16px;
+}
+
+
+.footer-section h3 {
+    margin-bottom: 10px;
+    color: white;
+    /* White color for section headings */
+}
+
+.footer-section ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+    /* Add space between list items */
+}
+
+.footer-section ul li {
+    margin-right: 15px;
+    /* Add margin between list items */
+}
+
+.footer-section ul li a {
+    text-decoration: none;
+    color: white;
+    /* Make the link text white */
+    font-size: 16px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    /* Set footer bottom text to white */
+}
+
+.footer-bottom p {
+    font-size: 14px;
+}
+
+/* Add a shadow to the form */
+.shadow-effect {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* You can adjust the shadow as needed */
+    transition: box-shadow 0.3s ease;
+    /* Smooth transition for the shadow effect */
+}
+
+
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 50px;
+    }
+
+    .hero-img img {
+        width: 80%;
+        max-width: 300px;
+    }
+
+    .hero-text {
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .quote-form {
+        width: 90%;
+        margin: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 5px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .hero h1 {
+        font-size: 24px;
+    }
+
+    .quote-form {
+        padding: 20px;
+    }
+
+    .book-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+.selected {
+    background-color: #003366;
+    color: #003366;
+    transform: scale(1.25);
+    transition: all 0.3s ease;
+}

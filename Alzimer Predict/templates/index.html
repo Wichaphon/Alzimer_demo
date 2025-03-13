@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alzhimer</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <header class="navbar">
+    <div class="logo"><i class='bx bx-brain'></i>Alzheimer Disease Prediction</div>
+    <button id="tryNowBtn" class="book-btn" onclick="toggleShadow()">Try Now</button>
+    </header>
+    <section class="hero">
+    <div class="hero-img">
+        <img src="static/medical-5459654_1280.jpg"></img>
+    </div>
+    <div class="hero-text">
+        <h1>Alzheimer Disease Prediction With Random Forest</h1>
+        <p>Accurately analyze the risk of Alzheimer's disease by simply uploading data or filling out the form</p>
+        <button id="tryNowBtn" class="book-btn" onclick="toggleShadow()">Try Now</button>
+    </div>
+    <div class="quote-form">
+        <h1>Prediction</h1>
+        <div class="toggle-buttons">
+            <button onclick="showUpload()">Upload CSV</button>
+            <button onclick="showManual()">Manual Input</button>
+        </div>
+        
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv">
+            <div class="button-group">
+                <input type="submit" value="Predict">
+                <button type="button" onclick="predictAgain()">Prediction Again</button>
+            </div>
+        </form>
+
+       <form id="manual-form" style="display: none;">
+        
+    <input type="text" name="field1" placeholder="MMSE Score">
+    <input type="text" name="field2" placeholder="Functional Assessment">
+
+    <div id="memoryComplaints">
+    <label>Memory Complaints</label>
+    <input type="hidden" id="field3" name="field3">
+    <button type="button" onclick="setValue('field3', '0', 'memoryComplaints')">NO</button>
+    <button type="button" onclick="setValue('field3', '1', 'memoryComplaints')">YES</button>
+    </div>
+
+    <!-- Behavioral Problems -->
+    <div id="behavioralProblems">
+    <label>Behavioral Problems:</label>
+    <input type="hidden" id="field4" name="field4">
+    <button type="button" onclick="setValue('field4', '0', 'behavioralProblems')">NO</button>
+    <button type="button" onclick="setValue('field4', '1', 'behavioralProblems')">YES</button>
+    </div>
+
+    <input type="text" name="field5" placeholder="ADL">
+    <div class="button-group">
+        <input type="submit" value="Predict">
+        <button type="button" onclick="predictAgain()">Prediction Again</button>
+    </div>
+</form>
+
+        <div id="result"></div>
+    </div>
+</section>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>We provide Random Forest Alzheimer’s disease prediction with accuracy and efficiency.</p>
+            </div>
+            <div class="footer-section">
+            </div>
+            <div class="footer-section">
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: สมาชมหมอไทยรักชาติ@gmail.com</p>
+                <p>Phone: +191 1169 1669</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Alzhimer disease Prediction. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="static/script.js"></script>
+</body>
+
+</html>
