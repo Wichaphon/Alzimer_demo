@@ -7,97 +7,83 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# ✅ ใช้ /tmp/uploads/ แทน uploads/ (Render เขียนไฟล์ได้ที่นี่)
-UPLOAD_FOLDER = '/tmp/uploads'
+# 📂 กำหนดโฟลเดอร์สำหรับอัปโหลดไฟล์
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 ALLOWED_EXTENSIONS = {'csv'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# ✅ ตรวจสอบและสร้างโฟลเดอร์หากไม่มี
+# ✅ ตรวจสอบและสร้างโฟลเดอร์อัปโหลดถ้ายังไม่มี
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# ตรวจสอบนามสกุลไฟล์
+# ✅ ตรวจสอบนามสกุลไฟล์ที่อัปโหลดได้
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# โหลดโมเดล
+# 📍 ระบุ PATH ของโมเดลให้ชัดเจน (แก้ปัญหาที่ Render หาไฟล์ไม่เจอ)
+MODEL_PATH = os.path.join(os.getcwd(), "Alzimer_Predict", "models", "best_model_no_smote.pkl")
+
+# ✅ ฟังก์ชันโหลดโมเดล
 def load_model(model_path):
-    if not model_path.endswith('.pkl'):
-        raise ValueError("Only .sav model format is supported")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     return pickle.load(open(model_path, 'rb'))
 
-# ✅ โหลดโมเดลจากตำแหน่งเดิม (ไม่เปลี่ยนแปลง)
-model = load_model("models/best_model_no_smote.pkl")
+# โหลดโมเดล
+model = load_model(MODEL_PATH)
 
+# ✅ Route หน้าแรก
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
 
+# ✅ Route สำหรับอัปโหลด CSV และพยากรณ์ผล
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'})
 
     file = request.files['file']
-
     if file.filename == '':
         return jsonify({'error': 'No selected file'})
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-        # ✅ เช็คและสร้างโฟลเดอร์อีกครั้งกันพลาด
-        if not os.path.exists(app.config['UPLOAD_FOLDER']):
-            os.makedirs(app.config['UPLOAD_FOLDER'])
-
-        # ✅ บันทึกไฟล์
         file.save(file_path)
-
-        # ✅ Debug Log (ให้แน่ใจว่าเซฟได้)
-        print(f"File saved at: {file_path}")
 
         try:
             df = pd.read_csv(file_path)
             X = df[['FunctionalAssessment', 'MMSE', 'ADL', 'MemoryComplaints', 'BehavioralProblems']]
             predictions = model.predict(X.values)
 
-            # ✅ ลบไฟล์หลังใช้เสร็จ
-            os.remove(file_path)
+            os.remove(file_path)  # ลบไฟล์หลังใช้งาน
 
-            return jsonify({
-                'status': 'success',
-                'predictions': predictions.tolist()
-            })
-
+            return jsonify({'status': 'success', 'predictions': predictions.tolist()})
         except Exception as e:
             return jsonify({'error': str(e)})
 
+# ✅ Route สำหรับการพยากรณ์แบบ Manual Input
 @app.route('/manual', methods=['POST'])
 def manual_input():
-    print(99)
-    mmse = request.form.get('field1')
-    functional = request.form.get('field2')
-    memory = request.form.get('field3')
-    behavior = request.form.get('field4')
-    adl = request.form.get('field5')
+    try:
+        mmse = request.form.get('field1')
+        functional = request.form.get('field2')
+        memory = request.form.get('field3')
+        behavior = request.form.get('field4')
+        adl = request.form.get('field5')
 
-    print(mmse)
+        if None in [mmse, functional, memory, behavior, adl]:
+            return jsonify({'error': 'Missing input values'})
 
-    if None in [mmse, functional, memory, behavior, adl]:
-        return jsonify({'error': 'Missing input values'})
+        data = np.array([[functional, mmse, adl, memory, behavior]])
+        predictions = model.predict(data)
 
-    data = np.array([[functional, mmse, adl, memory, behavior]])
-    predictions = model.predict(data)
-    print("Raw predictions:", predictions)
+        return jsonify({'status': 'success', 'predictions': predictions.tolist()})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-    return jsonify({
-        'status': 'success',
-        'predictions': predictions.tolist()
-    })
-
+# ✅ รัน Flask App
 if __name__ == '__main__':
-    # ✅ สร้างโฟลเดอร์อัปโหลดตอนรันเซิร์ฟเวอร์ (สำคัญ)
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=10000)  # ✅ เปลี่ยนเป็น port 10000 เพื่อให้ตรงกับ Render
